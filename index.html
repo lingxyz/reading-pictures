@@ -1,0 +1,171 @@
+<!--
+  todo: 分组 index bug
+开始按钮后再显示图片
+ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <title>看图识画</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+  <style>
+    html, body, #app{
+      height: 100%;
+    }
+    /* #app {
+      display: flex;
+      align-items: center;
+      justify-content: space-evenly;
+    } */
+    .img-content {
+      position: relative;
+      width: 70%;
+      margin: 0 auto;
+      height: 80vh;
+    }
+    .img-content .number {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      color: #000;
+    }
+    img {
+      width: auto;
+      height: 100%;
+    }
+    .img-content span {
+      position: absolute;
+      color: #fff;
+      font-size: 60px;
+    }
+    .center {
+      display: flex;
+      justify-content:center;
+      align-items:center;
+    }
+    button {
+      margin: 10px;
+    }
+    button.hover {
+      color: rgb(127, 157, 255);
+      border: 1px solid rgb(127, 157, 255)
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div>
+      <div class="center">
+        <button type="button" @click="groupImgs(0)" :class="{'hover': groupIndex == 0}">第1组</button>
+        <button type="button" @click="groupImgs(1)" :class="{'hover': groupIndex == 1}">第2组</button>
+        <button type="button" @click="groupImgs(2)" :class="{'hover': groupIndex == 2}">第3组</button>
+        <button type="button" @click="sliceImgs">重新分组</button>
+      </div>
+      <div class="center img-content">
+        <img :src="imgs[activeImgIndex].src" alt="">
+        <span v-if="showAnswer">{{imgs[activeImgIndex].name}}</span>
+        <span class="number">{{imgs.length-activeImgIndex}}</span>
+      </div>
+      <div class="center">
+        <button type="button" @click="reAnswer" v-if="activeImgIndex === 0">开始</button>
+        <button type="button" @click="reAnswer">重新答题</button>
+        倒计时：<span style="font-size: 30px;color: red;">{{times}}</span>&nbsp;&nbsp;S
+      </div>
+      <div class="center">
+        <button type="button" @click="showAnswer = !showAnswer">显示答案</button>
+        <button type="button" @click="next">下一个</button>
+      </div>
+    </div>
+	</div>
+
+  <script src="file.js"></script>
+  <script>
+    var app= new Vue({
+      el:"#app",
+      data:{
+        imgs: [{src: '', name: ''}],
+        activeImgIndex: 0,
+        showAnswer: false,
+        times: 10,
+        length: Math.ceil(files.length / 3),
+        groupIndexMiddle: localStorage.getItem('groupIndex') || 0
+      },
+      computed: {
+        // 当前第几组
+        groupIndex: {
+          get() {
+            return this.groupIndexMiddle
+          },
+          set(val) {
+            localStorage.setItem('groupIndex', val)
+          }
+        },
+        // 设置总图片
+        allImgs: {
+          get() {
+            return JSON.parse(localStorage.getItem('allImgs')) || files
+          },
+          set(val) {
+            localStorage.setItem('allImgs', JSON.stringify(val))
+          }
+        },
+        //
+      },
+      created() {
+        this.groupImgs(this.groupIndex)
+
+      },
+      methods: {
+        // 下一个
+        next() {
+          if (this.activeImgIndex + 1 < this.imgs.length) {
+            this.showAnswer = false
+            this.activeImgIndex ++
+            this.times = 10;
+            this.intevalEvent()
+          } else {
+            alert('没有更多了')
+          }
+        },
+        // 倒计时
+        intevalEvent() {
+          clearInterval(this.timer)
+          this.timer = setInterval(()=>{
+            this.times--
+            if(this.times===0){
+              clearInterval(this.timer)
+            }
+          } ,1000)
+        },
+        reAnswer() {
+          this.times = 10;
+          this.intevalEvent();
+        },
+        // 随机
+        sliceImgs() {
+          this.allImgs = this.allImgs.sort(() => {
+            return Math.random()-0.5;
+          });
+
+          this.groupImgs(this.groupIndex)
+        },
+        // 分组
+        groupImgs(index) {
+          const i = Number(index)
+          if(this.length > 0) {
+            this.imgs = this.allImgs.slice(i * this.length, (i + 1) * this.length)
+
+            this.groupIndex = index
+            this.groupIndexMiddle = index
+            this.activeImgIndex = 0
+          } else {
+            alert('请先分组')
+          }
+        }
+      }
+    })
+  </script>
+</body>
+</html>
