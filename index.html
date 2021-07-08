@@ -29,7 +29,18 @@
       position: absolute;
       bottom: 0;
       right: 0;
-      color: #000;
+      border-radius: 100%;
+      display: inline-block;
+      width: 60px;
+      height: 60px;
+      line-height: 60px;
+      text-align: center;
+      background: #7b7b7b52;
+      font-size: 40px;
+    }
+    .img-content .answer {
+      font-size: 120px;
+      background: #06060670;
     }
     img {
       width: auto;
@@ -38,7 +49,6 @@
     .img-content span {
       position: absolute;
       color: #fff;
-      font-size: 60px;
     }
     .center {
       display: flex;
@@ -65,7 +75,7 @@
       </div>
       <div class="center img-content">
         <img :src="imgs[activeImgIndex].src" alt="">
-        <span v-if="showAnswer">{{imgs[activeImgIndex].name}}</span>
+        <span v-if="showAnswer" class="answer">{{imgs[activeImgIndex].name}}</span>
         <span class="number">{{imgs.length-activeImgIndex}}</span>
       </div>
       <div class="center">
